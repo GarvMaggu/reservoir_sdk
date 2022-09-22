@@ -4,7 +4,7 @@ exports.AllRouters = exports.Router = void 0;
 const utils_1 = require("../utils");
 exports.Router = {
     [utils_1.Network.Ethereum]: "0x11c91606fc27a55c6f0e8f847d2ac46ec45b6e21",
-    [utils_1.Network.EthereumGoerli]: "0xf44caa746d184e6fba3071e8adbf9c041620fe44",
+    [utils_1.Network.EthereumGoerli]: "0x4e650642393ac992553b8fdd98be7750e99660cc",
     [utils_1.Network.EthereumRinkeby]: "0x0857cc569a239c4e2f7abb5168408d92fb8d63ae", // V5_0_0
 };
 // Keep track of all used or previously used router contracts
@@ -17,7 +17,7 @@ exports.AllRouters = {
         "0x11c91606fc27a55c6f0e8f847d2ac46ec45b6e21", // V5_0_0
     ],
     [utils_1.Network.EthereumGoerli]: [
-        "0xf44caa746d184e6fba3071e8adbf9c041620fe44", // V5_0_0
+        "0x4e650642393ac992553b8fdd98be7750e99660cc", // V5_0_0
     ],
     [utils_1.Network.EthereumRinkeby]: [
         "0xa5c0c6c024460b039b917a77eb564da5817c55e2",

@@ -5,7 +5,8 @@ export declare enum ExchangeKind {
     ZEROEX_V4 = 2,
     FOUNDATION = 3,
     X2Y2 = 4,
-    SEAPORT = 5
+    SEAPORT = 5,
+    SUDOSWAP = 6
 }
 export declare type GenericOrder = {
     kind: "foundation";
@@ -13,9 +14,6 @@ export declare type GenericOrder = {
 } | {
     kind: "looks-rare";
     order: Sdk.LooksRare.Order;
-} | {
-    kind: "opendao";
-    order: Sdk.OpenDao.Order;
 } | {
     kind: "x2y2";
     order: Sdk.X2Y2.Order;
@@ -28,6 +26,9 @@ export declare type GenericOrder = {
 } | {
     kind: "cryptopunks";
     order: Sdk.CryptoPunks.Order;
+} | {
+    kind: "sudoswap";
+    order: Sdk.Sudoswap.Order;
 };
 export declare type ListingFillDetails = {
     contractKind: "erc721" | "erc1155";
