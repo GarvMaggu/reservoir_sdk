@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -60,16 +64,31 @@ class Router {
             // TODO: Look into using tips for fees on top (only doable on Seaport)
             (!(options === null || options === void 0 ? void 0 : options.fee) || Number(options.fee.bps) === 0) &&
             // Skip direct filling if disabled via the options
-            !(options === null || options === void 0 ? void 0 : options.noDirectFilling)) {
+            !(options === null || options === void 0 ? void 0 : options.forceRouter)) {
             const exchange = new Sdk.Seaport.Exchange(this.chainId);
             if (details.length === 1) {
                 const order = details[0].order;
-                return exchange.fillOrderTx(taker, order, order.buildMatching({ amount: details[0].amount }), options);
+                return exchange.fillOrderTx(taker, order, order.buildMatching({ amount: details[0].amount }), {
+                    ...options,
+                    ...options === null || options === void 0 ? void 0 : options.directFillingData,
+                });
             }
             else {
                 const orders = details.map((d) => d.order);
-                return exchange.fillOrdersTx(taker, orders, orders.map((order, i) => order.buildMatching({ amount: details[i].amount })), options);
+                return exchange.fillOrdersTx(taker, orders, orders.map((order, i) => order.buildMatching({ amount: details[i].amount })), {
+                    ...options,
+                    ...options === null || options === void 0 ? void 0 : options.directFillingData,
+                });
             }
+        }
+        // TODO: Refactor with the new modular router
+        if (details.length === 1 && details[0].kind === "cryptopunks") {
+            const exchange = new Sdk.CryptoPunks.Exchange(this.chainId);
+            return exchange.fillListingTx(taker, details[0].order, options);
+        }
+        // Ensure all listings are in ETH
+        if (!details.every((d) => d.currency === Sdk.Common.Addresses.Eth[this.chainId])) {
+            throw new Error("Only ETH listings are fillable through the router");
         }
         // Keep track of batch-fillable orders
         const opendaoErc721Details = [];
@@ -296,7 +315,15 @@ class Router {
     }
     async fillBidTx(detail, taker, options) {
         // Assume the bid details are consistent with the underlying order object
-        const { tx, exchangeKind } = await this.generateNativeBidFillTx(detail);
+        const { tx, exchangeKind } = await this.generateNativeBidFillTx(detail, taker);
+        // The V5 router does not support filling X2Y2 bids, so we fill directly
+        if (exchangeKind === types_1.ExchangeKind.X2Y2) {
+            return {
+                from: taker,
+                to: Sdk.X2Y2.Addresses.Exchange[this.chainId],
+                data: tx.data + (0, utils_1.generateReferrerBytes)(options === null || options === void 0 ? void 0 : options.referrer),
+            };
+        }
         // Wrap the exchange-specific fill transaction via the router
         // (use the `onReceived` hooks for single token filling)
         if (detail.contractKind === "erc721") {
@@ -372,29 +399,12 @@ class Router {
                 maker: order.params.maker,
             };
         }
-        else if (kind === "wyvern-v2.3") {
-            order = order;
-            const matchParams = order.buildMatching(this.contract.address, {
-                order,
-                nonce: 0,
-                // Wyvern v2.3 supports specifying a recipient other than the taker
-                recipient: taker,
-            });
-            // Set the listing time in the past so that on-chain validation passes
-            matchParams.params.listingTime = await this.provider
-                .getBlock("latest")
-                .then((b) => b.timestamp - 2 * 60);
-            const exchange = new Sdk.WyvernV23.Exchange(this.chainId);
-            return {
-                tx: exchange.fillOrderTx(this.contract.address, matchParams, order),
-                exchangeKind: types_1.ExchangeKind.WYVERN_V23,
-                maker: order.params.maker,
-            };
-        }
         else if (kind === "x2y2") {
             order = order;
             // X2Y2 requires an API key to fill
-            const exchange = new Sdk.X2Y2.Exchange(this.chainId, String(process.env.X2Y2_API_KEY));
+            const exchange = new Sdk.X2Y2.Exchange(this.chainId, 
+            // TODO: The SDK should not rely on environment variables
+            String(process.env.X2Y2_API_KEY));
             return {
                 tx: await exchange.fillOrderTx(this.contract.address, order),
                 exchangeKind: types_1.ExchangeKind.X2Y2,
@@ -427,7 +437,7 @@ class Router {
         }
         throw new Error("Unreachable");
     }
-    async generateNativeBidFillTx({ kind, order, tokenId, extraArgs, }) {
+    async generateNativeBidFillTx({ kind, order, tokenId, extraArgs }, taker) {
         // When filling through the router, in all below cases we set
         // the router contract as the taker since forwarding received
         // tokens to the actual taker of the order will be taken care
@@ -462,23 +472,6 @@ class Router {
                 exchangeKind: types_1.ExchangeKind.ZEROEX_V4,
             };
         }
-        else if (kind === "wyvern-v2.3") {
-            order = order;
-            const matchParams = order.buildMatching(filler, {
-                tokenId,
-                nonce: 0,
-                ...(extraArgs || {}),
-            });
-            // Set the listing time in the past so that on-chain validation passes
-            matchParams.params.listingTime = await this.provider
-                .getBlock("latest")
-                .then((b) => b.timestamp - 2 * 60);
-            const exchange = new Sdk.WyvernV23.Exchange(this.chainId);
-            return {
-                tx: exchange.fillOrderTx(filler, order, matchParams),
-                exchangeKind: types_1.ExchangeKind.WYVERN_V23,
-            };
-        }
         else if (kind === "zeroex-v4") {
             order = order;
             const matchParams = order.buildMatching({
@@ -511,6 +504,16 @@ class Router {
                     recipient: filler,
                 }),
                 exchangeKind: types_1.ExchangeKind.SEAPORT,
+            };
+        }
+        else if (kind === "x2y2") {
+            order = order;
+            const exchange = new Sdk.X2Y2.Exchange(this.chainId, 
+            // TODO: The SDK should not rely on environment variables
+            String(process.env.X2Y2_API_KEY));
+            return {
+                tx: await exchange.fillOrderTx(taker, order, { tokenId }),
+                exchangeKind: types_1.ExchangeKind.X2Y2,
             };
         }
         throw new Error("Unreachable");

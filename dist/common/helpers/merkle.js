@@ -14,7 +14,7 @@ const generateMerkleTree = (tokenIds) => {
         throw new Error("Could not generate merkle tree");
     }
     const leaves = tokenIds.map(exports.hashFn);
-    return new merkletreejs_1.default(leaves, exports.hashFn, { sort: true });
+    return new merkletreejs_1.default(leaves, utils_1.keccak256, { sort: true });
 };
 exports.generateMerkleTree = generateMerkleTree;
 const generateMerkleProof = (merkleTree, tokenId) => merkleTree.getHexProof((0, exports.hashFn)(tokenId));

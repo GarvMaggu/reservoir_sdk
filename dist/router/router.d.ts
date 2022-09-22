@@ -14,8 +14,9 @@ export declare class Router {
             bps: number | string;
         };
         skipPrecheck?: boolean;
-        noDirectFilling?: boolean;
+        forceRouter?: boolean;
         partial?: boolean;
+        directFillingData?: any;
     }): Promise<TxData>;
     fillBidTx(detail: BidDetails, taker: string, options?: {
         referrer?: string;

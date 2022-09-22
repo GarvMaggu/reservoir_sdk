@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -24,7 +28,6 @@ const constants_1 = require("@ethersproject/constants");
 const base_1 = require("../base");
 const order_1 = require("../../order");
 const Types = __importStar(require("../../types"));
-const CommonAddresses = __importStar(require("../../../common/addresses"));
 const utils_1 = require("../../../utils");
 class SingleTokenBuilder extends base_1.BaseBuilder {
     getInfo(order) {
@@ -165,16 +168,20 @@ class SingleTokenBuilder extends base_1.BaseBuilder {
                 ],
                 consideration: [
                     {
-                        itemType: Types.ItemType.NATIVE,
-                        token: CommonAddresses.Eth[this.chainId],
+                        itemType: params.paymentToken === constants_1.AddressZero
+                            ? Types.ItemType.NATIVE
+                            : Types.ItemType.ERC20,
+                        token: params.paymentToken,
                         identifierOrCriteria: "0",
                         startAmount: (0, utils_1.s)(params.price),
                         endAmount: (0, utils_1.s)((_c = params.endPrice) !== null && _c !== void 0 ? _c : params.price),
                         recipient: params.offerer,
                     },
                     ...(params.fees || []).map(({ amount, endAmount, recipient }) => ({
-                        itemType: Types.ItemType.NATIVE,
-                        token: CommonAddresses.Eth[this.chainId],
+                        itemType: params.paymentToken === constants_1.AddressZero
+                            ? Types.ItemType.NATIVE
+                            : Types.ItemType.ERC20,
+                        token: params.paymentToken,
                         identifierOrCriteria: "0",
                         startAmount: (0, utils_1.s)(amount),
                         endAmount: (0, utils_1.s)(endAmount !== null && endAmount !== void 0 ? endAmount : amount),

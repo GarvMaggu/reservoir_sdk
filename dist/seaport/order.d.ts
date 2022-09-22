@@ -42,6 +42,7 @@ export declare class Order {
     checkFillability(provider: Provider): Promise<void>;
     private getBuilder;
     private detectKind;
+    private fixSignature;
 }
 export declare const ORDER_EIP712_TYPES: {
     OrderComponents: {

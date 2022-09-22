@@ -51,6 +51,7 @@ export declare class Exchange {
         amount: string;
         paymentToken: string;
         price: string;
+        side: string;
     } | undefined;
 }
 //# sourceMappingURL=exchange.d.ts.map

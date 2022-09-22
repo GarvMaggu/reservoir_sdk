@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -46,6 +50,8 @@ class Order {
         if (!params.kind) {
             this.params.kind = this.detectKind();
         }
+        // Fix signature
+        this.fixSignature();
     }
     hash() {
         return hash_1._TypedDataEncoder.hashStruct("OrderComponents", exports.ORDER_EIP712_TYPES, this.params);
@@ -227,6 +233,23 @@ class Order {
             }
         }
         throw new Error("Could not detect order kind (order might have unsupported params/calldata)");
+    }
+    fixSignature() {
+        var _a;
+        // Ensure `v` is always 27 or 28 (Seaport will revert otherwise)
+        if (((_a = this.params.signature) === null || _a === void 0 ? void 0 : _a.length) === 132) {
+            let lastByte = parseInt(this.params.signature.slice(-2), 16);
+            if (lastByte < 27) {
+                if (lastByte === 0 || lastByte === 1) {
+                    lastByte += 27;
+                }
+                else {
+                    throw new Error("Invalid `v` byte");
+                }
+                this.params.signature =
+                    this.params.signature.slice(0, -2) + lastByte.toString(16);
+            }
+        }
     }
 }
 exports.Order = Order;

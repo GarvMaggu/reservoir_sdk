@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -29,6 +33,7 @@ const contracts_1 = require("@ethersproject/contracts");
 const keccak256_1 = require("@ethersproject/keccak256");
 const axios_1 = __importDefault(require("axios"));
 const Addresses = __importStar(require("./addresses"));
+const Types = __importStar(require("./types"));
 const utils_1 = require("../utils");
 const Exchange_json_1 = __importDefault(require("./abis/Exchange.json"));
 class Exchange {
@@ -37,16 +42,92 @@ class Exchange {
         this.contract = new contracts_1.Contract(Addresses.Exchange[this.chainId], Exchange_json_1.default);
         this.apiKey = apiKey;
     }
+    // --- Sign order ---
+    hash(order) {
+        return (0, keccak256_1.keccak256)(abi_1.defaultAbiCoder.encode([
+            `uint256`,
+            `address`,
+            `uint256`,
+            `uint256`,
+            `uint256`,
+            `uint256`,
+            `address`,
+            `bytes`,
+            `uint256`,
+            `(uint256 price, bytes data)[]`,
+        ], [
+            order.salt,
+            order.user,
+            order.network,
+            order.intent,
+            order.delegateType,
+            order.deadline,
+            order.currency,
+            order.dataMask,
+            order.items.length,
+            order.items,
+        ]));
+    }
+    async signOrder(signer, order) {
+        const signature = (0, bytes_1.splitSignature)(await signer.signMessage((0, bytes_1.arrayify)(this.hash(order))));
+        order.v = signature.v;
+        order.r = signature.r;
+        order.s = signature.s;
+    }
+    getOrderSignatureData(order) {
+        return {
+            signatureKind: "eip191",
+            message: this.hash(order),
+        };
+    }
+    // --- Post order ---
+    async postOrder(order, orderId) {
+        const orderPayload = {
+            order: abi_1.defaultAbiCoder.encode([
+                `(
+            uint256 salt,
+            address user,
+            uint256 network,
+            uint256 intent,
+            uint256 delegateType,
+            uint256 deadline,
+            address currency,
+            bytes dataMask,
+            (uint256 price, bytes data)[] items,
+            bytes32 r,
+            bytes32 s,
+            uint8 v,
+            uint8 signVersion
+          )`,
+            ], [order]),
+            isBundle: false,
+            bundleName: "",
+            bundleDesc: "",
+            orderIds: orderId ? [orderId] : [],
+            changePrice: Boolean(orderId),
+            isCollection: order.dataMask !== "0x",
+        };
+        return axios_1.default.post("https://api.x2y2.org/api/orders/add", orderPayload, {
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                "X-Api-Key": this.apiKey,
+            },
+        });
+    }
     // --- Fill order ---
     async fillOrder(taker, order, options) {
         const tx = await this.fillOrderTx(await taker.getAddress(), order, options);
         return taker.sendTransaction(tx);
     }
     async fillOrderTx(taker, order, options) {
+        if (order.params.type === "buy" && !(options === null || options === void 0 ? void 0 : options.tokenId)) {
+            throw new Error("When filling buy orders, `tokenId` must be specified");
+        }
         const response = await axios_1.default.post("https://api.x2y2.org/api/orders/sign", {
             caller: taker,
-            // COMPLETE_SELL_OFFER
-            op: 1,
+            op: order.params.type === "sell"
+                ? Types.Op.COMPLETE_SELL_OFFER
+                : Types.Op.COMPLETE_BUY_OFFER,
             amountToEth: "0",
             amountToWeth: "0",
             items: [
@@ -54,6 +135,7 @@ class Exchange {
                     orderId: order.params.id,
                     currency: order.params.currency,
                     price: order.params.price,
+                    tokenId: order.params.type === "buy" ? options === null || options === void 0 ? void 0 : options.tokenId : undefined,
                 },
             ],
         }, {

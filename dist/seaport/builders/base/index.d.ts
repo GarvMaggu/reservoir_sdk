@@ -48,7 +48,7 @@ export declare abstract class BaseBuilder {
     constructor(chainId: number);
     protected defaultInitialize(params: BaseBuildParams): void;
     protected getBaseInfo(order: Order): {
-        side: "buy" | "sell";
+        side: "sell" | "buy";
         isDynamic: boolean;
     };
     protected baseIsValid(order: Order): boolean;

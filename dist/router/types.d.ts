@@ -17,9 +17,6 @@ export declare type GenericOrder = {
     kind: "opendao";
     order: Sdk.OpenDao.Order;
 } | {
-    kind: "wyvern-v2.3";
-    order: Sdk.WyvernV23.Order;
-} | {
     kind: "x2y2";
     order: Sdk.X2Y2.Order;
 } | {
@@ -28,11 +25,15 @@ export declare type GenericOrder = {
 } | {
     kind: "seaport";
     order: Sdk.Seaport.Order;
+} | {
+    kind: "cryptopunks";
+    order: Sdk.CryptoPunks.Order;
 };
 export declare type ListingFillDetails = {
     contractKind: "erc721" | "erc1155";
     contract: string;
     tokenId: string;
+    currency: string;
     amount?: number | string;
 };
 export declare type BidFillDetails = {

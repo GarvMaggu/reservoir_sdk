@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -54,8 +58,12 @@ class Exchange {
                 throw new Error("Could not get order info");
             }
             if (info.side === "sell") {
-                if (recipient === constants_1.AddressZero &&
-                    (!matchParams.amount || (0, utils_1.bn)(matchParams.amount).eq(1)) &&
+                if (
+                // Order is not private
+                recipient === constants_1.AddressZero &&
+                    // Order is single quantity
+                    info.amount === "1" &&
+                    // Order has no criteria
                     !matchParams.criteriaResolvers) {
                     info = info;
                     // Use "basic" fulfillment
@@ -73,8 +81,12 @@ class Exchange {
                                 offerIdentifier: info.tokenId,
                                 offerAmount: info.amount,
                                 basicOrderType: (info.tokenKind === "erc721"
-                                    ? Types.BasicOrderType.ETH_TO_ERC721_FULL_OPEN
-                                    : Types.BasicOrderType.ETH_TO_ERC1155_FULL_OPEN) +
+                                    ? info.paymentToken === CommonAddresses.Eth[this.chainId]
+                                        ? Types.BasicOrderType.ETH_TO_ERC721_FULL_OPEN
+                                        : Types.BasicOrderType.ERC20_TO_ERC721_FULL_OPEN
+                                    : info.paymentToken === CommonAddresses.Eth[this.chainId]
+                                        ? Types.BasicOrderType.ETH_TO_ERC1155_FULL_OPEN
+                                        : Types.BasicOrderType.ERC20_TO_ERC1155_FULL_OPEN) +
                                     order.params.orderType,
                                 startTime: order.params.startTime,
                                 endTime: order.params.endTime,
@@ -95,7 +107,12 @@ class Exchange {
                                 signature: order.params.signature,
                             },
                         ]) + (0, utils_1.generateReferrerBytes)(options === null || options === void 0 ? void 0 : options.referrer),
-                        value: (0, utils_1.bn)(order.getMatchingPrice()).toHexString(),
+                        value: info.paymentToken === CommonAddresses.Eth[this.chainId]
+                            ? (0, utils_1.bn)(order.getMatchingPrice())
+                                .mul(matchParams.amount || "1")
+                                .div(info.amount)
+                                .toHexString()
+                            : undefined,
                     };
                 }
                 else {
@@ -118,16 +135,22 @@ class Exchange {
                             conduitKey,
                             recipient,
                         ]) + (0, utils_1.generateReferrerBytes)(options === null || options === void 0 ? void 0 : options.referrer),
-                        value: (0, utils_1.bn)(order.getMatchingPrice())
-                            .mul(matchParams.amount || "1")
-                            .div(info.amount)
-                            .toHexString(),
+                        value: info.paymentToken === CommonAddresses.Eth[this.chainId]
+                            ? (0, utils_1.bn)(order.getMatchingPrice())
+                                .mul(matchParams.amount || "1")
+                                .div(info.amount)
+                                .toHexString()
+                            : undefined,
                     };
                 }
             }
             else {
-                if (recipient === constants_1.AddressZero &&
-                    (!matchParams.amount || (0, utils_1.bn)(matchParams.amount).eq(1)) &&
+                if (
+                // Order is not private
+                recipient === constants_1.AddressZero &&
+                    // Order is single quantity
+                    info.amount === "1" &&
+                    // Order has no criteria
                     !matchParams.criteriaResolvers) {
                     info = info;
                     // Use "basic" fulfillment
@@ -196,6 +219,10 @@ class Exchange {
         else {
             // Fill bundle orders
             order = order;
+            let info = order.getInfo();
+            if (!info) {
+                throw new Error("Could not get order info");
+            }
             if (order.params.kind === "bundle-ask") {
                 return {
                     from: taker,
@@ -215,9 +242,12 @@ class Exchange {
                         conduitKey,
                         recipient,
                     ]) + (0, utils_1.generateReferrerBytes)(options === null || options === void 0 ? void 0 : options.referrer),
-                    value: (0, utils_1.bn)(order.getMatchingPrice())
-                        .mul(matchParams.amount || "1")
-                        .toHexString(),
+                    value: info.paymentToken ===
+                        CommonAddresses.Eth[this.chainId]
+                        ? (0, utils_1.bn)(order.getMatchingPrice())
+                            .mul(matchParams.amount || "1")
+                            .toHexString()
+                        : undefined,
                 };
             }
             else {
@@ -283,7 +313,9 @@ class Exchange {
                     info.side === "sell" &&
                     info.paymentToken === CommonAddresses.Eth[this.chainId]);
             })
-                .map((order) => order.getMatchingPrice())
+                .map((order, i) => (0, utils_1.bn)(order.getMatchingPrice())
+                .mul(matchParams[i].amount || "1")
+                .div(order.getInfo().amount))
                 .reduce((a, b) => (0, utils_1.bn)(a).add(b), (0, utils_1.bn)(0))).toHexString(),
         };
     }
@@ -375,6 +407,7 @@ class Exchange {
                             .map((c) => (0, utils_1.bn)(c.amount))
                             .reduce((a, b) => a.add(b))
                             .toString(),
+                        side: "sell",
                     };
                 }
                 else {
@@ -396,6 +429,7 @@ class Exchange {
                         amount: mainConsideration.amount,
                         paymentToken: nSpentItems[0].token,
                         price: nSpentItems[0].amount,
+                        side: "buy",
                     };
                 }
             }

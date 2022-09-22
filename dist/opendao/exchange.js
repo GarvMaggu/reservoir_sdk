@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -144,7 +148,7 @@ class Exchange {
         const signatures = [];
         const fillAmounts = [];
         const callbackData = [];
-        const tokenKind = (_a = orders[0].params.kind) === null || _a === void 0 ? void 0 : _a.split("-").at(-1);
+        const tokenKind = (_a = orders[0].params.kind) === null || _a === void 0 ? void 0 : _a.split("-")[0];
         if (!tokenKind) {
             throw new Error("Could not detect token kind");
         }
@@ -153,7 +157,7 @@ class Exchange {
             if (orders[i].params.direction !== Types.TradeDirection.SELL) {
                 throw new Error("Invalid side");
             }
-            if (((_b = orders[i].params.kind) === null || _b === void 0 ? void 0 : _b.split("-").at(-1)) !== tokenKind) {
+            if (((_b = orders[i].params.kind) === null || _b === void 0 ? void 0 : _b.split("-")[0]) !== tokenKind) {
                 throw new Error("Invalid kind");
             }
             const feeAmount = orders[i].getFeeAmount();

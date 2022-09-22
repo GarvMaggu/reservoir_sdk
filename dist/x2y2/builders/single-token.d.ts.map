@@ -1,0 +1,1 @@
+{"version":3,"file":"single-token.d.ts","sourceRoot":"","sources":["../../../src/x2y2/builders/single-token.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,YAAY,EAAE,MAAM,0BAA0B,CAAC;AAExD,OAAO,EAAE,eAAe,EAAE,MAAM,QAAQ,CAAC;AACzC,OAAO,KAAK,KAAK,MAAM,UAAU,CAAC;AAGlC,UAAU,WAAY,SAAQ,eAAe;IAC3C,OAAO,EAAE,YAAY,CAAC;CACvB;AAED,eAAO,MAAM,UAAU,WAAY,WAAW,KAAG,MAAM,UA6BtD,CAAC"}
