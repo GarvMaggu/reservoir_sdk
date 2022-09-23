@@ -372,7 +372,7 @@ class Router {
             const orderData = JSON.parse(order.params.pair);
             const exchange = new Sdk.Sudoswap.Exchange(this.chainId);
             return {
-                tx: exchange.fillOrderTx(this.contract.address, orderData.swapList, order.params.price),
+                tx: exchange.fillOrderTx(this.contract.address, orderData.swaplist, order.params.price),
                 exchangeKind: types_1.ExchangeKind.SUDOSWAP,
                 maker: "0x2b2e8cda09bba9660dca5cb6233787738ad68329",
             };
