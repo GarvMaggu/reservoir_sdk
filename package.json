@@ -1,14 +1,31 @@
 {
-  "name": "@reservoir0x/core",
-  "version": "0.0.173",
-  "packageManager": "yarn@3.1.1",
-  "workspaces": [
-    "packages/*"
-  ],
+  "name": "@reservoir0x/sdk",
+  "version": "0.0.179",
+  "description": "Reservoir Protocol SDK",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "prepublishOnly": "yarn clean && yarn build"
+  },
   "devDependencies": {
-    "typedoc": "^0.22.10"
+    "@types/node": "^16.11.12",
+    "typescript": "^4.5.2"
   },
   "dependencies": {
-    "axios": "^0.27.2"
+    "ethers": "^5.6.8",
+    "merkletreejs": "0.2.31"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": false
   }
 }
