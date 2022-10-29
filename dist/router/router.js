@@ -377,6 +377,15 @@ class Router {
                 maker: "0x2b2e8cda09bba9660dca5cb6233787738ad68329",
             };
         }
+        else if (kind === "blur") {
+            order = order;
+            const exchange = new Sdk.Blur.Exchange(this.chainId);
+            return {
+                tx: exchange.fillOrderTx(this.contract.address, order.params.sell, order.params.buy, order.params.price),
+                exchangeKind: types_1.ExchangeKind.BLUR,
+                maker: order.params.maker,
+            };
+        }
         throw new Error("Unreachable");
     }
     async generateNativeBidFillTx({ kind, order, tokenId, extraArgs }, taker) {

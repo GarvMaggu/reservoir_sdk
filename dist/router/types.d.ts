@@ -6,7 +6,8 @@ export declare enum ExchangeKind {
     FOUNDATION = 3,
     X2Y2 = 4,
     SEAPORT = 5,
-    SUDOSWAP = 6
+    SUDOSWAP = 6,
+    BLUR = 7
 }
 export declare type GenericOrder = {
     kind: "foundation";
@@ -29,6 +30,9 @@ export declare type GenericOrder = {
 } | {
     kind: "sudoswap";
     order: Sdk.Sudoswap.Order;
+} | {
+    kind: "blur";
+    order: Sdk.Blur.Order;
 };
 export declare type ListingFillDetails = {
     contractKind: "erc721" | "erc1155";
