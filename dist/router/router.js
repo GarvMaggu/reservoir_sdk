@@ -164,7 +164,7 @@ class Router {
                     from: taker,
                     to: this.contract.address,
                     data: !(options === null || options === void 0 ? void 0 : options.skipPrecheck) && !isEscrowed
-                        ? this.contract.interface.encodeFunctionData("singleERC721ListingFillWithPrecheck", [
+                        ? this.contract.interface.encodeFunctionData("singERC721ListingFillWithPrecheck", [
                             tx.data,
                             exchangeKind,
                             detail.contract,
@@ -174,7 +174,7 @@ class Router {
                             fee.recipient,
                             fee.bps,
                         ])
-                        : this.contract.interface.encodeFunctionData("singleERC721ListingFill", [
+                        : this.contract.interface.encodeFunctionData("singERC721ListingFill", [
                             tx.data,
                             exchangeKind,
                             detail.contract,
@@ -232,7 +232,7 @@ class Router {
             return {
                 from: taker,
                 to: this.contract.address,
-                data: this.contract.interface.encodeFunctionData("multiListingFill", [
+                data: this.contract.interface.encodeFunctionData("multipleListingFill", [
                     routerTxs.map((tx) => tx.data),
                     routerTxs.map((tx) => tx.value.toString()),
                     !(options === null || options === void 0 ? void 0 : options.partial),
