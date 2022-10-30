@@ -114,7 +114,7 @@ class Router {
             routerTxs.push({
                 from: taker,
                 to: this.contract.address,
-                data: this.contract.interface.encodeFunctionData("batchERC721ListingFill", [
+                data: this.contract.interface.encodeFunctionData("batchhERC721ListingFill", [
                     tx.data,
                     zeroexV4Erc721Details.map((detail) => detail.contract),
                     zeroexV4Erc721Details.map((detail) => detail.tokenId),
@@ -140,7 +140,7 @@ class Router {
             routerTxs.push({
                 from: taker,
                 to: this.contract.address,
-                data: this.contract.interface.encodeFunctionData("batchERC1155ListingFill", [
+                data: this.contract.interface.encodeFunctionData("batchhERC1155ListingFill", [
                     tx.data,
                     zeroexV4Erc1155Details.map((detail) => detail.contract),
                     zeroexV4Erc1155Details.map((detail) => detail.tokenId),
@@ -194,7 +194,7 @@ class Router {
                     from: taker,
                     to: this.contract.address,
                     data: !(options === null || options === void 0 ? void 0 : options.skipPrecheck) && !isEscrowed
-                        ? this.contract.interface.encodeFunctionData("singleERC1155ListingFillWithPrecheck", [
+                        ? this.contract.interface.encodeFunctionData("singERC1155ListingFillWithPrecheck", [
                             tx.data,
                             exchangeKind,
                             detail.contract,
@@ -205,7 +205,7 @@ class Router {
                             fee.recipient,
                             fee.bps,
                         ])
-                        : this.contract.interface.encodeFunctionData("singleERC1155ListingFill", [
+                        : this.contract.interface.encodeFunctionData("singERC1155ListingFill", [
                             tx.data,
                             exchangeKind,
                             detail.contract,
@@ -232,7 +232,7 @@ class Router {
             return {
                 from: taker,
                 to: this.contract.address,
-                data: this.contract.interface.encodeFunctionData("multipleListingFill", [
+                data: this.contract.interface.encodeFunctionData("batchBuyWithETH", [
                     routerTxs.map((tx) => tx.data),
                     routerTxs.map((tx) => tx.value.toString()),
                     !(options === null || options === void 0 ? void 0 : options.partial),
@@ -276,7 +276,7 @@ class Router {
                     taker,
                     this.contract.address,
                     detail.tokenId,
-                    this.contract.interface.encodeFunctionData("singleERC721BidFill", [tx.data, exchangeKind, detail.contract, taker, true]),
+                    this.contract.interface.encodeFunctionData("singERC721BidFill", [tx.data, exchangeKind, detail.contract, taker, true]),
                 ]) + (0, utils_1.generateReferrerBytes)(options === null || options === void 0 ? void 0 : options.referrer),
             };
         }
@@ -290,7 +290,7 @@ class Router {
                     detail.tokenId,
                     // TODO: Support selling a quantity greater than 1
                     1,
-                    this.contract.interface.encodeFunctionData("singleERC1155BidFill", [tx.data, exchangeKind, detail.contract, taker, true]),
+                    this.contract.interface.encodeFunctionData("singERC1155BidFill", [tx.data, exchangeKind, detail.contract, taker, true]),
                 ]) + (0, utils_1.generateReferrerBytes)(options === null || options === void 0 ? void 0 : options.referrer),
             };
         }

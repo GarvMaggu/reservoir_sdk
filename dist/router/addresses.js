@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AllRouters = exports.Router = void 0;
 const utils_1 = require("../utils");
 exports.Router = {
-    [utils_1.Network.Ethereum]: "0x141efc30c4093bc0f8204accb8afa6643fddecf2",
+    [utils_1.Network.Ethereum]: "0x8e76ca03f4d13da1e2ea1e9ca614c67eb0fca757",
     [utils_1.Network.EthereumGoerli]: "0x4e650642393ac992553b8fdd98be7750e99660cc",
     [utils_1.Network.EthereumRinkeby]: "0x0857cc569a239c4e2f7abb5168408d92fb8d63ae", // V5_0_0
 };
@@ -14,7 +14,7 @@ exports.AllRouters = {
         "0x5aa9ca240174a54af6d9bfc69214b2ed948de86d",
         "0x7c9733b19e14f37aca367fbd78922c098c55c874",
         "0x8005488ff4f8982d2d8c1d602e6d747b1428dd41",
-        "0x141efc30c4093bc0f8204accb8afa6643fddecf2", // V5_0_0
+        "0x8e76ca03f4d13da1e2ea1e9ca614c67eb0fca757", // V5_0_0
     ],
     [utils_1.Network.EthereumGoerli]: [
         "0x4e650642393ac992553b8fdd98be7750e99660cc", // V5_0_0

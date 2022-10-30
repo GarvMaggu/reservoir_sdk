@@ -107,6 +107,29 @@
     {
         "inputs": [
             {
+                "internalType": "bytes[]",
+                "name": "data",
+                "type": "bytes[]"
+            },
+            {
+                "internalType": "uint256[]",
+                "name": "values",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "bool",
+                "name": "revertIfIncomplete",
+                "type": "bool"
+            }
+        ],
+        "name": "batchBuyWithETH",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "bytes",
                 "name": "data",
                 "type": "bytes"
@@ -142,7 +165,7 @@
                 "type": "uint16"
             }
         ],
-        "name": "batchERC1155ListingFill",
+        "name": "batchhERC1155ListingFill",
         "outputs": [],
         "stateMutability": "payable",
         "type": "function"
@@ -180,7 +203,7 @@
                 "type": "uint16"
             }
         ],
-        "name": "batchERC721ListingFill",
+        "name": "batchhERC721ListingFill",
         "outputs": [],
         "stateMutability": "payable",
         "type": "function"
@@ -269,29 +292,6 @@
             }
         ],
         "name": "makeCalls",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes[]",
-                "name": "data",
-                "type": "bytes[]"
-            },
-            {
-                "internalType": "uint256[]",
-                "name": "values",
-                "type": "uint256[]"
-            },
-            {
-                "internalType": "bool",
-                "name": "revertIfIncomplete",
-                "type": "bool"
-            }
-        ],
-        "name": "multipleListingFill",
         "outputs": [],
         "stateMutability": "payable",
         "type": "function"
@@ -420,6 +420,173 @@
                 "type": "address"
             },
             {
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "unwrapWeth",
+                "type": "bool"
+            }
+        ],
+        "name": "singERC1155BidFill",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            },
+            {
+                "internalType": "enum ExchangeKind",
+                "name": "exchangeKind",
+                "type": "uint8"
+            },
+            {
+                "internalType": "address",
+                "name": "collection",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "feeRecipient",
+                "type": "address"
+            },
+            {
+                "internalType": "uint16",
+                "name": "feeBps",
+                "type": "uint16"
+            }
+        ],
+        "name": "singERC1155ListingFill",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            },
+            {
+                "internalType": "enum ExchangeKind",
+                "name": "exchangeKind",
+                "type": "uint8"
+            },
+            {
+                "internalType": "address",
+                "name": "collection",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "expectedOwner",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "feeRecipient",
+                "type": "address"
+            },
+            {
+                "internalType": "uint16",
+                "name": "feeBps",
+                "type": "uint16"
+            }
+        ],
+        "name": "singERC1155ListingFillWithPrecheck",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            },
+            {
+                "internalType": "enum ExchangeKind",
+                "name": "exchangeKind",
+                "type": "uint8"
+            },
+            {
+                "internalType": "address",
+                "name": "collection",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "unwrapWeth",
+                "type": "bool"
+            }
+        ],
+        "name": "singERC721BidFill",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            },
+            {
+                "internalType": "enum ExchangeKind",
+                "name": "exchangeKind",
+                "type": "uint8"
+            },
+            {
+                "internalType": "address",
+                "name": "collection",
+                "type": "address"
+            },
+            {
                 "internalType": "uint256",
                 "name": "tokenId",
                 "type": "uint256"
@@ -489,173 +656,6 @@
             }
         ],
         "name": "singERC721ListingFillWithPrecheck",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-            },
-            {
-                "internalType": "enum ExchangeKind",
-                "name": "exchangeKind",
-                "type": "uint8"
-            },
-            {
-                "internalType": "address",
-                "name": "collection",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "receiver",
-                "type": "address"
-            },
-            {
-                "internalType": "bool",
-                "name": "unwrapWeth",
-                "type": "bool"
-            }
-        ],
-        "name": "singleERC1155BidFill",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-            },
-            {
-                "internalType": "enum ExchangeKind",
-                "name": "exchangeKind",
-                "type": "uint8"
-            },
-            {
-                "internalType": "address",
-                "name": "collection",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "receiver",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "feeRecipient",
-                "type": "address"
-            },
-            {
-                "internalType": "uint16",
-                "name": "feeBps",
-                "type": "uint16"
-            }
-        ],
-        "name": "singleERC1155ListingFill",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-            },
-            {
-                "internalType": "enum ExchangeKind",
-                "name": "exchangeKind",
-                "type": "uint8"
-            },
-            {
-                "internalType": "address",
-                "name": "collection",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "receiver",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "expectedOwner",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "feeRecipient",
-                "type": "address"
-            },
-            {
-                "internalType": "uint16",
-                "name": "feeBps",
-                "type": "uint16"
-            }
-        ],
-        "name": "singleERC1155ListingFillWithPrecheck",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-            },
-            {
-                "internalType": "enum ExchangeKind",
-                "name": "exchangeKind",
-                "type": "uint8"
-            },
-            {
-                "internalType": "address",
-                "name": "collection",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "receiver",
-                "type": "address"
-            },
-            {
-                "internalType": "bool",
-                "name": "unwrapWeth",
-                "type": "bool"
-            }
-        ],
-        "name": "singleERC721BidFill",
         "outputs": [],
         "stateMutability": "payable",
         "type": "function"
