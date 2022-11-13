@@ -8,6 +8,7 @@ export declare const lc: (x: string) => string;
 export declare const n: (x: any) => any;
 export declare const s: (x: any) => any;
 export declare const generateReferrerBytes: (referrer?: string | undefined) => string;
+export declare const generateSourceBytes: (source?: string | undefined) => string;
 export declare const getReferrer: (calldata: string) => string | undefined;
 export declare type TxData = {
     from: string;

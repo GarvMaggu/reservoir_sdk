@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Network = exports.getReferrer = exports.generateReferrerBytes = exports.s = exports.n = exports.lc = exports.getCurrentTimestamp = exports.bn = exports.getRandomBytes = exports.MaxUint256 = exports.BytesEmpty = void 0;
+exports.Network = exports.getReferrer = exports.generateSourceBytes = exports.generateReferrerBytes = exports.s = exports.n = exports.lc = exports.getCurrentTimestamp = exports.bn = exports.getRandomBytes = exports.MaxUint256 = exports.BytesEmpty = void 0;
 const bignumber_1 = require("@ethersproject/bignumber");
 const random_1 = require("@ethersproject/random");
 const strings_1 = require("@ethersproject/strings");
@@ -37,6 +37,15 @@ const generateReferrerBytes = (referrer) => {
         : "";
 };
 exports.generateReferrerBytes = generateReferrerBytes;
+const generateSourceBytes = (source) => {
+    if (source && !isPrintableASCII(source)) {
+        throw new Error("Not a printable ASCII string");
+    }
+    return source
+        ? `${SEPARATOR}${Buffer.from((0, strings_1.toUtf8Bytes)(source)).toString("hex")}${SEPARATOR}`
+        : "";
+};
+exports.generateSourceBytes = generateSourceBytes;
 const getReferrer = (calldata) => {
     try {
         if (calldata.endsWith(SEPARATOR)) {

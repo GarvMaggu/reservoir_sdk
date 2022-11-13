@@ -40,8 +40,22 @@ class Router {
         this.provider = provider;
     }
     async fillListingsTx(details, taker, options) {
-        // Assume the listing details are consistent with the underlying order object
         var _a, _b;
+        if (details.some(({ kind }) => kind === "rarible")) {
+            if (details.length > 1) {
+                throw new Error("Rarible sweeping is not supported");
+            }
+            else {
+                const order = details[0].order;
+                const exchange = new Sdk.Rarible.Exchange(this.chainId);
+                return exchange.fillOrderTx(taker, order, {
+                    tokenId: details[0].tokenId,
+                    assetClass: details[0].contractKind.toUpperCase(),
+                    amount: Number(details[0].amount),
+                });
+            }
+        }
+        // Assume the listing details are consistent with the underlying order object
         // Orders on exchanges that support batch filling will be batch filled
         // natively so that filling is as efficient as possible while the rest
         // of the orders will be filled individually.
@@ -276,7 +290,13 @@ class Router {
                     taker,
                     this.contract.address,
                     detail.tokenId,
-                    this.contract.interface.encodeFunctionData("singERC721BidFill", [tx.data, exchangeKind, detail.contract, taker, true]),
+                    this.contract.interface.encodeFunctionData("singERC721BidFill", [
+                        tx.data,
+                        exchangeKind,
+                        detail.contract,
+                        taker,
+                        true,
+                    ]),
                 ]) + (0, utils_1.generateReferrerBytes)(options === null || options === void 0 ? void 0 : options.referrer),
             };
         }
@@ -290,7 +310,13 @@ class Router {
                     detail.tokenId,
                     // TODO: Support selling a quantity greater than 1
                     1,
-                    this.contract.interface.encodeFunctionData("singERC1155BidFill", [tx.data, exchangeKind, detail.contract, taker, true]),
+                    this.contract.interface.encodeFunctionData("singERC1155BidFill", [
+                        tx.data,
+                        exchangeKind,
+                        detail.contract,
+                        taker,
+                        true,
+                    ]),
                 ]) + (0, utils_1.generateReferrerBytes)(options === null || options === void 0 ? void 0 : options.referrer),
             };
         }
@@ -303,12 +329,13 @@ class Router {
         //   data: tx.data + generateReferrerBytes(options?.referrer),
         // };
     }
-    async generateNativeListingFillTx({ kind, order, tokenId, amount }, taker) {
+    async generateNativeListingFillTx({ kind, order, tokenId, amount, contractKind = "erc721" }, taker) {
         // In all below cases we set the router contract as the taker
         // since forwarding any received token to the actual taker of
         // the order will be done on-chain by the router (unless it's
         // possible to specify a token recipient other than the taker
         // natively - only Wyvern V2.3 supports this).
+        var _a;
         if (kind === "foundation") {
             order = order;
             const exchange = new Sdk.Foundation.Exchange(this.chainId);
@@ -383,6 +410,19 @@ class Router {
             return {
                 tx: exchange.fillOrderTx(this.contract.address, order.params.sell, order.params.buy, order.params.price),
                 exchangeKind: types_1.ExchangeKind.BLUR,
+                maker: order.params.maker,
+            };
+        }
+        else if (kind === "rarible") {
+            order = order;
+            const exchange = new Sdk.Rarible.Exchange(this.chainId);
+            return {
+                tx: await exchange.fillOrderTx(taker, order, {
+                    assetClass: contractKind,
+                    tokenId,
+                    amount: (_a = Number(amount)) !== null && _a !== void 0 ? _a : 1,
+                }),
+                exchangeKind: types_1.ExchangeKind.RARIBLE,
                 maker: order.params.maker,
             };
         }
