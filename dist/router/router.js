@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -76,6 +80,34 @@ class Router {
                     ...options === null || options === void 0 ? void 0 : options.directFillingData,
                 });
             }
+        }
+        if (details.every(({ kind }) => kind === "x2y2") &&
+            details.length === 1 &&
+            // TODO: Look into using tips for fees on top (only doable on Seaport)
+            (!(options === null || options === void 0 ? void 0 : options.fee) || Number(options.fee.bps) === 0) &&
+            // Skip direct filling if disabled via the options
+            !(options === null || options === void 0 ? void 0 : options.forceRouter)) {
+            const order = details[0].order;
+            // X2Y2 requires an API key to fill
+            const exchange = new Sdk.X2Y2.Exchange(this.chainId, 
+            // TODO: The SDK should not rely on environment variables
+            String(process.env.X2Y2_API_KEY));
+            const tx = await exchange.fillOrderTx(taker, order);
+            return tx;
+        }
+        if (details.every(({ kind }) => kind === "looks-rare") &&
+            details.length === 1 &&
+            // TODO: Look into using tips for fees on top (only doable on Seaport)
+            (!(options === null || options === void 0 ? void 0 : options.fee) || Number(options.fee.bps) === 0) &&
+            // Skip direct filling if disabled via the options
+            !(options === null || options === void 0 ? void 0 : options.forceRouter)) {
+            const order = details[0].order;
+            const matchParams = order.buildMatching(taker, {
+                tokenId: details[0].tokenId,
+            });
+            const exchange = new Sdk.LooksRare.Exchange(this.chainId);
+            const tx = exchange.fillOrderTx(taker, order, matchParams);
+            return tx;
         }
         // TODO: Refactor with the new modular router
         if (details.length === 1 && details[0].kind === "cryptopunks") {
@@ -158,8 +190,23 @@ class Router {
         }
         // Rest of orders are individually filled
         for (const detail of details) {
-            const { tx, exchangeKind, maker, isEscrowed } = await this.generateNativeListingFillTx(detail, taker);
-            if (detail.contractKind === "erc721") {
+            const { tx, exchangeKind, maker, isEscrowed, makeCalls } = await this.generateNativeListingFillTx(detail, taker);
+            if (makeCalls) {
+                routerTxs.push({
+                    from: taker,
+                    to: this.contract.address,
+                    data: this.contract.interface.encodeFunctionData("makeCalls", [
+                        [makeCalls.target],
+                        [makeCalls.data],
+                        [makeCalls.value],
+                    ]),
+                    value: (0, utils_1.bn)(tx.value)
+                        // Add the referrer fee
+                        .add((0, utils_1.bn)(tx.value).mul(fee.bps).div(10000))
+                        .toHexString(),
+                });
+            }
+            else if (detail.contractKind === "erc721") {
                 routerTxs.push({
                     from: taker,
                     to: this.contract.address,
@@ -276,7 +323,13 @@ class Router {
                     taker,
                     this.contract.address,
                     detail.tokenId,
-                    this.contract.interface.encodeFunctionData("singERC721BidFill", [tx.data, exchangeKind, detail.contract, taker, true]),
+                    this.contract.interface.encodeFunctionData("singERC721BidFill", [
+                        tx.data,
+                        exchangeKind,
+                        detail.contract,
+                        taker,
+                        true,
+                    ]),
                 ]) + (0, utils_1.generateReferrerBytes)(options === null || options === void 0 ? void 0 : options.referrer),
             };
         }
@@ -290,7 +343,13 @@ class Router {
                     detail.tokenId,
                     // TODO: Support selling a quantity greater than 1
                     1,
-                    this.contract.interface.encodeFunctionData("singERC1155BidFill", [tx.data, exchangeKind, detail.contract, taker, true]),
+                    this.contract.interface.encodeFunctionData("singERC1155BidFill", [
+                        tx.data,
+                        exchangeKind,
+                        detail.contract,
+                        taker,
+                        true,
+                    ]),
                 ]) + (0, utils_1.generateReferrerBytes)(options === null || options === void 0 ? void 0 : options.referrer),
             };
         }
@@ -384,6 +443,21 @@ class Router {
                 tx: exchange.fillOrderTx(this.contract.address, order.params.sell, order.params.buy, order.params.price),
                 exchangeKind: types_1.ExchangeKind.BLUR,
                 maker: order.params.maker,
+            };
+        }
+        else if (kind === "blurswap") {
+            order = order;
+            const exchange = new Sdk.BlurSwap.Exchange(this.chainId);
+            const tx = exchange.fillOrderTx(this.contract.address, order.params.inputData, order.params.price);
+            return {
+                tx: tx,
+                exchangeKind: types_1.ExchangeKind.BLURSWAP,
+                maker: order.params.maker,
+                // makeCalls: {
+                //   target: exchange.contract,
+                //   data: tx.data,
+                //   value: tx.value,
+                // },
             };
         }
         throw new Error("Unreachable");

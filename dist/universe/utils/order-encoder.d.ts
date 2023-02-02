@@ -1,6 +1,6 @@
 import { Types } from "..";
 import { Asset, IPart, LocalAssetType } from "../types";
-export declare const encodeAsset: (token?: string | undefined, tokenId?: string | undefined) => string;
+export declare const encodeAsset: (token?: string, tokenId?: string) => string;
 export declare const encodeBundle: (tokenAddresses: string[], tokenIds: any) => string;
 export declare const encodeAssetData: (assetType: LocalAssetType) => string;
 export declare const encodeAssetClass: (assetClass: string) => string;
