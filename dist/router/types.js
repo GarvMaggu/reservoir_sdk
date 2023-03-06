@@ -12,5 +12,6 @@ var ExchangeKind;
     ExchangeKind[ExchangeKind["SUDOSWAP"] = 6] = "SUDOSWAP";
     ExchangeKind[ExchangeKind["BLUR"] = 7] = "BLUR";
     ExchangeKind[ExchangeKind["BLURSWAP"] = 8] = "BLURSWAP";
+    ExchangeKind[ExchangeKind["SEAPORTV1_4"] = 9] = "SEAPORTV1_4";
 })(ExchangeKind = exports.ExchangeKind || (exports.ExchangeKind = {}));
 //# sourceMappingURL=types.js.map

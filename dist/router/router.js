@@ -61,11 +61,14 @@ class Router {
         // at the moment because the router has separate functions for
         // filling ERC721 vs ERC1155).
         if (details.every(({ kind }) => kind === "seaport") &&
+            (details.every(({ chainId }) => chainId === utils_1.Network.Magically) ||
+                details.every(({ chainId }) => chainId === utils_1.Network.Ethereum) ||
+                details.every(({ chainId }) => chainId == undefined)) &&
             // TODO: Look into using tips for fees on top (only doable on Seaport)
             (!(options === null || options === void 0 ? void 0 : options.fee) || Number(options.fee.bps) === 0) &&
             // Skip direct filling if disabled via the options
             !(options === null || options === void 0 ? void 0 : options.forceRouter)) {
-            const exchange = new Sdk.Seaport.Exchange(this.chainId);
+            const exchange = new Sdk.Seaport.Exchange(details[0].chainId || this.chainId);
             if (details.length === 1) {
                 const order = details[0].order;
                 return exchange.fillOrderTx(taker, order, order.buildMatching({ amount: details[0].amount }), {
@@ -362,7 +365,7 @@ class Router {
         //   data: tx.data + generateReferrerBytes(options?.referrer),
         // };
     }
-    async generateNativeListingFillTx({ kind, order, tokenId, amount }, taker) {
+    async generateNativeListingFillTx({ kind, order, tokenId, amount, chainId: cid }, taker) {
         // In all below cases we set the router contract as the taker
         // since forwarding any received token to the actual taker of
         // the order will be done on-chain by the router (unless it's
@@ -417,12 +420,14 @@ class Router {
             order = order;
             // Support passing an amount for partially fillable orders
             const matchParams = order.buildMatching({ amount });
-            const exchange = new Sdk.Seaport.Exchange(this.chainId);
+            const exchange = new Sdk.Seaport.Exchange(cid || this.chainId);
             return {
                 tx: exchange.fillOrderTx(this.contract.address, order, matchParams, {
                     recipient: taker,
                 }),
-                exchangeKind: types_1.ExchangeKind.SEAPORT,
+                exchangeKind: cid == utils_1.Network.Magically
+                    ? types_1.ExchangeKind.SEAPORTV1_4
+                    : types_1.ExchangeKind.SEAPORT,
                 maker: order.params.offerer,
             };
         }

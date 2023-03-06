@@ -27,7 +27,8 @@ export declare enum Network {
     PolygonMumbai = 80001,
     Arbitrum = 42161,
     Avalanche = 43114,
-    AvalancheFuji = 43113
+    AvalancheFuji = 43113,
+    Magically = 91863
 }
 export declare type ChainIdToAddress = {
     [chainId: number]: string;

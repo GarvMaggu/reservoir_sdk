@@ -8,7 +8,8 @@ export declare enum ExchangeKind {
     SEAPORT = 5,
     SUDOSWAP = 6,
     BLUR = 7,
-    BLURSWAP = 8
+    BLURSWAP = 8,
+    SEAPORTV1_4 = 9
 }
 export declare type GenericOrder = {
     kind: "foundation";
@@ -44,6 +45,7 @@ export declare type ListingFillDetails = {
     tokenId: string;
     currency: string;
     amount?: number | string;
+    chainId?: number;
 };
 export declare type BidFillDetails = {
     contractKind: "erc721" | "erc1155";
