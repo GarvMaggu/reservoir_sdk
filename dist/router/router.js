@@ -62,6 +62,7 @@ class Router {
         // filling ERC721 vs ERC1155).
         if (details.every(({ kind }) => kind === "seaport") &&
             (details.every(({ chainId }) => chainId === utils_1.Network.Magically) ||
+                details.every(({ chainId }) => chainId === utils_1.Network.Magically2) ||
                 details.every(({ chainId }) => chainId === utils_1.Network.Ethereum) ||
                 details.every(({ chainId }) => chainId == undefined)) &&
             // TODO: Look into using tips for fees on top (only doable on Seaport)
@@ -425,9 +426,11 @@ class Router {
                 tx: exchange.fillOrderTx(this.contract.address, order, matchParams, {
                     recipient: taker,
                 }),
-                exchangeKind: cid == utils_1.Network.Magically
-                    ? types_1.ExchangeKind.SEAPORTV1_4
-                    : types_1.ExchangeKind.SEAPORT,
+                exchangeKind: cid == utils_1.Network.Magically2
+                    ? types_1.ExchangeKind.SEAPORTV1_5
+                    : cid == utils_1.Network.Magically
+                        ? types_1.ExchangeKind.SEAPORTV1_4
+                        : types_1.ExchangeKind.SEAPORT,
                 maker: order.params.offerer,
             };
         }

@@ -9,7 +9,8 @@ export declare enum ExchangeKind {
     SUDOSWAP = 6,
     BLUR = 7,
     BLURSWAP = 8,
-    SEAPORTV1_4 = 9
+    SEAPORTV1_4 = 9,
+    SEAPORTV1_5 = 10
 }
 export declare type GenericOrder = {
     kind: "foundation";

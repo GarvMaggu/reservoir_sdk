@@ -255,7 +255,11 @@ class Order {
 exports.Order = Order;
 const EIP712_DOMAIN = (chainId) => ({
     name: "Seaport",
-    version: chainId == 1 ? "1.1" : "1.4",
+    version: chainId == utils_1.Network.Magically2
+        ? "1.5"
+        : chainId == utils_1.Network.Magically
+            ? "1.4"
+            : "1.1",
     chainId: 1,
     verifyingContract: Addresses.Exchange[chainId],
 });

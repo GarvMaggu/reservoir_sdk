@@ -83,5 +83,6 @@ var Network;
     Network[Network["Avalanche"] = 43114] = "Avalanche";
     Network[Network["AvalancheFuji"] = 43113] = "AvalancheFuji";
     Network[Network["Magically"] = 91863] = "Magically";
+    Network[Network["Magically2"] = 91864] = "Magically2";
 })(Network = exports.Network || (exports.Network = {}));
 //# sourceMappingURL=utils.js.map
